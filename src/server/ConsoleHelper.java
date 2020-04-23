@@ -24,14 +24,14 @@ public class ConsoleHelper {
 		
 	}
 	public static int readInt() {
-		String stringNumber = readString();
-		try {
+		while(true) {
+	try {	String stringNumber = readString();
+		
+		
 		return Integer.valueOf(stringNumber);
 	}	 catch(NumberFormatException e) {
 		writeMessage("An error while trying to enter a number. Try again.");
-		readInt();
-	}
-	
-	return 0 ;
+			}
+		}
 	}}
 
