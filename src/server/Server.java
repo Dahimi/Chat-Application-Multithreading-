@@ -38,14 +38,33 @@ public class Server {
         
     }
     private static class Handler extends Thread {
-        private final Socket socket ;
-        public Handler(Socket  socket){
+    	private final Socket socket ;
+        private final Connection connection ;
+        public Handler(Socket  socket) throws IOException {
             this.socket = socket;
-            
+            connection = new Connection(socket);
         }
         @Override
         public void run(){
             
+        }
+        private String serverHandshake(Connection connection) throws IOException,ClassNotFoundException{
+        	while(true) {
+             connection.send(new Message(MessageType.NAME_REQUEST,"Enter your username" ));
+             Message response = connection.receive();
+             if(!isValidResponse(response)) continue;
+             if(!isValidUsername(response.getData())) continue ;
+             connectionMap.put(response.getData(), connection);
+             connection.send(new Message(MessageType.NAME_ACCEPTED, "Request accepted"));
+             return response.getData();
+        	}
+        	
+        } 
+        private boolean isValidResponse(Message response) {
+        	return !(response == null || response.getType() != MessageType.USER_NAME );        	
+        }
+        private boolean isValidUsername(String username) {
+        	return !(username.isEmpty() || connectionMap.containsKey(username));
         }
     }
     
