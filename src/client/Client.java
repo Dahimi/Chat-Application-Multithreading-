@@ -18,7 +18,7 @@ public class Client {
 		SocketThread  socketThread = getSocketThread();
 		socketThread.setDaemon(true);
 		socketThread.start();
-		synchronized(this) {
+		synchronized(connection) {
 		  try {
 		while(!clientConnected) wait();
 		  } catch(Exception e) {
@@ -26,13 +26,18 @@ public class Client {
 			  return ;
 		  }
 		}
-		if(clientConnected) ConsoleHelper.writeMessage("Connection established. To exit, enter 'exit'.");
-		else ConsoleHelper.writeMessage( "An error occurred while working with the client.");
+		if(clientConnected) {
+			
+		ConsoleHelper.writeMessage("Connection established. To exit, enter 'exit'.");		
 		String text ="";
-		while( clientConnected && !text.equals("exit")) {
+		while( clientConnected ) {
 			text = ConsoleHelper.readString();
+			if(text.equals("exit")) break;
+			
 			if(shouldSendTextFromConsole()) sendTextMessage(text);
+		  }
 		}
+		else ConsoleHelper.writeMessage( "An error occurred while working with the client.");
 		
 	}
 	protected String getServerAddress() {
@@ -67,6 +72,6 @@ public class Client {
 		public void run() {
 			
 		}
-		
+	
 	}
 }
