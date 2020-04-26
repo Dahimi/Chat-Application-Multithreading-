@@ -1,4 +1,6 @@
-package server;
+package utilities;
+
+
 
 public enum MessageType {
 	    NAME_REQUEST, 
