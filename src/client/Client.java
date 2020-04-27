@@ -18,7 +18,7 @@ public class Client {
 		SocketThread  socketThread = getSocketThread();
 		socketThread.setDaemon(true);
 		socketThread.start();
-		synchronized(connection) {
+		synchronized(this) {
 		  try {
 		while(!clientConnected) wait();
 		  } catch(Exception e) {
@@ -71,6 +71,51 @@ public class Client {
 	public class SocketThread  extends Thread {
 		public void run() {
 			
+		}
+		protected void clientHandshake() throws IOException, ClassNotFoundException{
+			while(!isInterrupted()) {
+				Message message = 	connection.receive();
+				if(message.getType() == MessageType.NAME_REQUEST) {			
+					Message response = new Message(MessageType.USER_NAME,getUserName());
+					connection.send(response);
+				}
+				else if(message.getType() == MessageType.NAME_ACCEPTED) {
+					notifyConnectionStatusChanged(true);
+					return ;
+				}
+				else 	throw new IOException("Unexpected MessageType");					
+			}
+		}
+		protected void clientMainLoop() throws IOException, ClassNotFoundException{
+			while(!isInterrupted()) {
+				Message message = 	connection.receive();
+				if(message.getType() == MessageType.TEXT) {			
+					processIncomingMessage(message.getData());
+				}
+				else if(message.getType() == MessageType.USER_ADDED) {
+					informAboutAddingNewUser(message.getData());
+				}
+				else if(message.getType() == MessageType.USER_REMOVED) {
+					informAboutDeletingNewUser(message.getData());
+				}
+				else 	throw new IOException("Unexpected MessageType");					
+			}
+		}
+	
+		protected void processIncomingMessage(String message) {
+			ConsoleHelper.writeMessage(message);
+		}
+		protected void informAboutAddingNewUser(String userName) {
+			ConsoleHelper.writeMessage(String.format("New user added : %s", userName));
+		}
+		protected void informAboutDeletingNewUser(String userName) {
+			ConsoleHelper.writeMessage(String.format(" User deleted : %s", userName));
+		}
+		protected void notifyConnectionStatusChanged(boolean clientConnected) {
+			synchronized(Client.this) {
+				Client.this.clientConnected = clientConnected;
+				Client.this.notify();
+			}
 		}
 	
 	}
