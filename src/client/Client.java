@@ -1,6 +1,7 @@
 package client;
 
 import java.io.IOException;
+import java.net.Socket;
 
 import utilities.Connection;
 import utilities.ConsoleHelper;
@@ -70,6 +71,17 @@ public class Client {
 	}
 	public class SocketThread  extends Thread {
 		public void run() {
+			try {
+			String serverAddress = getServerAddress();
+			int port = getServerPort();
+			Socket socket = new Socket(serverAddress, port);
+			connection = new Connection(socket);
+			clientHandshake();
+			clientMainLoop();
+			}
+			catch(IOException | ClassNotFoundException ex) {
+				notifyConnectionStatusChanged(false);
+			}
 			
 		}
 		protected void clientHandshake() throws IOException, ClassNotFoundException{

@@ -24,8 +24,10 @@ public class Server {
     	public static void main(String[] args){
         ServerSocket serverSocket = null ;
         try{
+        ConsoleHelper.writeMessage("enter the port number");
         int port  = ConsoleHelper.readInt();
         serverSocket = new ServerSocket(port);
+        ConsoleHelper.writeMessage(""+ serverSocket.getLocalPort());
         ConsoleHelper.writeMessage("The server is running ");
         while(true){
                 Socket socket = serverSocket.accept();
